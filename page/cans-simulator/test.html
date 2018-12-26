@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
+<title>midi sender </title>
+<script src="./pomidi.js"></script>
+<style>
+#wrap{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.note{
+	margin:2px;
+	display:inline-block;
+	width:60px;
+	height:60px;
+  text-align: center;
+  line-height:60px;
+  vertical-align: middle;
+  border-radius:30px;
+}
+.noteon{
+	background-color:moccasin;	
+}
+</style>
+</head>
+<body>
+<div id="title">MIDI送信テスト</div>
+<div id="wrap">
+	<div class="note" id="n36">36</div>
+	<div class="note" id="n38">38</div>
+	<div class="note" id="n40">40</div>
+	<div class="note" id="n43">43</div>
+	<div class="note" id="n45">45</div>
+	<div class="note" id="n48">48</div>
+</div>
+<script>
+(async function(){
+
+var samples = [36,38,40,43,45,48];
+var viewcnt = [0,0,0,0,0,0];
+var smp = new Map();
+
+for(var cnt = 0;cnt < samples.length;cnt ++){
+  var dom = document.getElementById("n"+samples[cnt]);
+  smp.set(samples[cnt],{dom:dom, index:cnt});
+}
+
+var midi = await new pomidi();
+
+function playCan(note){
+  var obj = smp.get(note);
+  if(obj != null){
+    obj.dom.classList.add("noteon");
+    viewcnt[obj.index] = 10;
+  }else{
+    console.log("Error! : Invalid note number. ["+note+"] is not supported by this application.");
+  }
+  midi.sendNoteOn(0,note,100);
+}
+
+function updateView(){
+  for(var cnt=0;cnt < samples.length; cnt ++){
+  	var obj = smp.get(samples[cnt]);
+    if(viewcnt[cnt] > 0){
+  	  viewcnt[cnt] --;
+  	  if(viewcnt[cnt] == 0){
+  	    obj.dom.classList.remove("noteon");
+  	  }
+    }
+  }
+}
+
+requestAnimationFrame(animate);
+function animate(){
+  requestAnimationFrame(animate);
+  updateView();
+}
+
+document.body.onkeydown = function(ev){
+  console.log("keydown: "+ev.keyCode);
+  var index = -1;
+  if((ev.keyCode >= 49) && (ev.keyCode <= 54)){  // 1-6
+    index = ev.keyCode - 49; // 1->0 2->1 ..
+  }
+  if(index != -1){
+    playCan(samples[index]);
+  }else{
+    playCan(samples[0]);
+  }
+  if(status == true){
+    outer.style.visibility = "hidden";
+  }
+};
+
+})();
+
+</script>  
+</body>
+</html>
