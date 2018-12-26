@@ -12,7 +12,7 @@ It is currently not supported for reception from CircuitPython and only supports
 
 ### cans 
 
-[cans](./page/cans-simulator/cans/)
+[cans](./page/cans-simulator/cans/index.html)
 
 
 
